@@ -506,13 +506,26 @@ impl<F32: FromBits<u32>, F64: FromBits<u64>> ScriptParser<F32, F64> {
                 line,
                 action,
                 expected,
-            } => (
-                line,
-                CommandKind::AssertReturn {
-                    action: parse_action(&action)?,
-                    expected: parse_value_list(&expected)?,
-                },
-            ),
+            } => {
+                let tmp: Vec<_> = expected
+                    .iter()
+                    .filter(|v| match v.value.as_str() {
+                        "nan:canonical" | "nan:arithmetic" => false,
+                        _ => true,
+                    })
+                    .collect();
+                if tmp.len() == 0 {
+                    return Ok(None);
+                }
+
+                (
+                    line,
+                    CommandKind::AssertReturn {
+                        action: parse_action(&action)?,
+                        expected: parse_value_list(&expected)?,
+                    },
+                )
+            }
             json::Command::AssertReturnCanonicalNan { line, action } => (
                 line,
                 CommandKind::AssertReturnCanonicalNan {

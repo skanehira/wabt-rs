@@ -1,4 +1,4 @@
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct RuntimeValue {
     #[serde(rename = "type")]
     pub value_type: String,
